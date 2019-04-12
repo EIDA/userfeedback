@@ -23,11 +23,11 @@ It is highly recommended to use **always** the token with the client. Even if yo
     >>> st = rsClient.get_waveforms(network="Z3", channel="HHZ", starttime=UTCDateTime(2016, 3, 1), endtime=UTCDateTime(2016, 3, 1, 0, 2, 0))
     >>> print(st)
     
-    165 Trace(s) in Stream:
+    171 Trace(s) in Stream:
     
     Z3.A022A..HHZ | 2016-03-01 - 2016-03-01T00:02:01.540000Z | 100.0 Hz, 12396 samples
     
-    (163 other traces)...
+    (169 other traces)...
     
     Z3.A216A.00.HHZ | 2016-03-01 - 2016-03-01T00:02:00.000000Z | 100.0 Hz, 12001 samples
 
@@ -61,5 +61,7 @@ The fdsnws_fetch is the main command line client provided by the fdsnwsscripts p
     getting data from http://www.orfeus-eu.org/fdsnws/dataselect/1/queryauth
     got 950272 bytes (mseed) from http://www.orfeus-eu.org/fdsnws/dataselect/1/queryauth
     
-    received no data from http://webservices.ingv.it/fdsnws/dataselect/1/queryauth 
+    authentication at https://webservices.ingv.it/fdsnws/dataselect/1/auth successful
+    getting data from http://webservices.ingv.it/fdsnws/dataselect/1/queryauth
+    got 105472 bytes (mseed) from http://webservices.ingv.it/fdsnws/dataselect/1/queryauth
 
