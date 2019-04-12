@@ -9,6 +9,14 @@ Please keep in mind the following guidelines before reporting a problem.
 1. Try to use the most reasonable template from the ones we provide in order for us to properly assign a responsible person for your issue.
 1. Take a look at the examples provided here, the documentation at the Orfeus website and in the EIDA Authentication Service to understand how you are suppose to use/access different resources.
 
+## EIDA Authentication System / Accessing restricted data
+Since March 2019 EIDA has setup a new service which should allow users to be authenticated within different EIDA services. To do this, the user needs to request a **token** from the following page
+
+https://geofon.gfz-potsdam.de/eas/
+
+Complete instructions can be downloaded from the [User documentation](https://geofon.gfz-potsdam.de/eas/EAS-User-documentation.docx). This is still a first draft version, but should be clear enough to work with the system.
+We kindly request users to read this thoroughly and provide suggestions to improve the documentation. You can enable the function "Track Changes" and return us all your suggestions in the Word file.
+
 ## Examples of code to access data
 
 ### Obspy
