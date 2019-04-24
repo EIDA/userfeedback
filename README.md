@@ -39,6 +39,10 @@ It is highly recommended to use **always** the token with the client. Even if yo
     
     Z3.A216A.00.HHZ | 2016-03-01 - 2016-03-01T00:02:00.000000Z | 100.0 Hz, 12001 samples
 
+In the case that this does not work you can always turn on the debugging at the moment of the client creation
+
+    >>> rsClient = RoutingClient("eida-routing", debug=True, credentials= ...)
+
 ### fdsnws_fetch
 The fdsnws_fetch is the main command line client provided by the fdsnwsscripts package. On one hand, this client was designed to mantaing backwards compatibility with the old arclink_fetch, so that users can seamlessly switch from Arclink requests to the new web services. But it is also important to mention that this client supports all recent developments from EIDA, including the usage of the EIDA token, and the provision of a proper citation in a paper for the requested data.
 
