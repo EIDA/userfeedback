@@ -39,6 +39,8 @@ It is highly recommended to use **always** the token with the client. Even if yo
     
     Z3.A216A.00.HHZ | 2016-03-01 - 2016-03-01T00:02:00.000000Z | 100.0 Hz, 12001 samples
 
+..warning:: Some issues have been detected with Obspy version 1.1.0 and previous.
+
 In the case that this does not work you can always turn on the debugging at the moment of the client creation
 
     >>> rsClient = RoutingClient("eida-routing", debug=True, credentials= ...)
