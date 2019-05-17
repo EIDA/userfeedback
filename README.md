@@ -14,7 +14,7 @@ Since March 2019 EIDA has setup a new service which should allow users to be aut
 
 https://geofon.gfz-potsdam.de/eas/
 
-Complete instructions can be downloaded from the [User documentation](https://geofon.gfz-potsdam.de/eas/EAS-User-documentation.docx). This is still a first draft version, but should be clear enough to work with the system.
+Complete instructions can be downloaded from the [User documentation](https://geofon.gfz-potsdam.de/eas/EIDAAuthenticationService.pdf). This is still a first draft version, but should be clear enough to work with the system.
 We kindly request users to read this thoroughly and provide suggestions to improve the documentation. You can enable the function "Track Changes" and return us all your suggestions in the Word file.
 
 ## Examples of code to access data
