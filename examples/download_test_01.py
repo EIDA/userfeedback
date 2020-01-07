@@ -1,10 +1,11 @@
 from obspy import UTCDateTime, Stream
 from obspy.clients.fdsn import Client, RoutingClient
 import random
+import os
 import numpy as np
 from tqdm import tqdm
 
-token = '/home/username/.eidatoken' # path to personal eida token here
+token = os.path.expanduser('~/.eidatoken') # path to personal eida token here
 
 # the purpose of a hacked-in node list is to avoid any potential routing issues
 nodes = [{'name': 'ODC', 'stationurl': 'http://www.orfeus-eu.org/fdsnws/station/1/query?', 'dataurl': 'http://www.orfeus-eu.org/fdsnws/dataselect/1/query?', 'wfcurl': 'http://www.orfeus-eu.org/eidaws/wfcatalog/1/query?'},
@@ -33,7 +34,7 @@ for year in years :
 		downloaded = []
 		
 		# read stationlist file
-		stationfile =  open(path + 'stationlist_downloadtest_' + year + '_' + channel + '.txt', 'r')
+		stationfile =  open(os.path.join(path, 'stationlist_downloadtest_' + year + '_' + channel + '.txt'), 'r')
 		stationfile_output_raw = stationfile.readlines()
 		stationfile.close()
 		stationfile_output = [(entry.rstrip('\n')).split() for entry in stationfile_output_raw] # make it look nice
@@ -46,9 +47,10 @@ for year in years :
 			if nodename != new_nodename : # check if new fdsnws connection needs to be established
 				nodename = new_nodename
 				print('Initiating new FDSNWS connection to node:', nodename)
-				try : fdsn = Client(nodename, debug=False, eida_token=token)
-				except Exception as e :
+				try :
 					fdsn = RoutingClient('eida-routing', credentials={'EIDA_TOKEN': token}) # only use routingclient if direct client initiation failed for some reason
+				except Exception as e :
+				        fdsn = Client(nodename, debug=False, eida_token=token)
 			network = entry[2]
 			station = entry[3]
 			print(year, channel, nodename, network, station)
@@ -57,8 +59,8 @@ for year in years :
 
 			data = Stream()
 			for i in np.arange(runs) :
-				days = random.sample(range(1, 365), days_to_sample)
-				hours = random.sample(range(0, 23), hours_to_sample) # create random set of hours and days for download test
+				days = random.sample(range(1, 366), days_to_sample)
+				hours = random.sample(range(0, 24), hours_to_sample) # create random set of hours and days for download test
 				hours_with_data = 0
 
 				for day in tqdm(days) : #  loop through all the random days
