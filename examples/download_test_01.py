@@ -48,9 +48,9 @@ for year in years :
 				nodename = new_nodename
 				print('Initiating new FDSNWS connection to node:', nodename)
 				try :
-					fdsn = RoutingClient('eida-routing', credentials={'EIDA_TOKEN': token}) # only use routingclient if direct client initiation failed for some reason
-				except Exception as e :
-				        fdsn = Client(nodename, debug=False, eida_token=token)
+					fdsn = RoutingClient('eida-routing', timeout=15, credentials={'EIDA_TOKEN': token})
+				except Exception as e:
+					fdsn = Client(nodename, timeout=15, debug=False, eida_token=token)
 			network = entry[2]
 			station = entry[3]
 			print(year, channel, nodename, network, station)
