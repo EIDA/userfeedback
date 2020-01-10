@@ -24,36 +24,36 @@ nodes = [{'name': 'ODC', 'stationurl': 'http://www.orfeus-eu.org/fdsnws/station/
 
 print('-----------------------------------------------------')
 for year in years :
-	resultlist = []
-	nowfc_list = []
-	start = UTCDateTime(year + '01-01')
-	end = UTCDateTime(year + '12-31')
-	y1 = str(start.year)
-	m1 = str(start.month).rjust(2, '0')
-	d1 = str(start.day).rjust(2, '0')
+    resultlist = []
+    nowfc_list = []
+    start = UTCDateTime(year + '01-01')
+    end = UTCDateTime(year + '12-31')
+    y1 = str(start.year)
+    m1 = str(start.month).rjust(2, '0')
+    d1 = str(start.day).rjust(2, '0')
 
-	y2 = str(end.year)
-	m2 = str(end.month).rjust(2, '0')
-	d2 = str(end.day).rjust(2, '0')
-	for node in nodes :
-		print('-----------------------------------------------------')
-		print('Retrieving stations for node:', node['name'], '...')
-		url = node['wfcurl']
-		direct = Client(node['name'], debug=debug) #eida_token=token, 
-		inv = Inventory()
-		inv += direct.get_stations(network='*', station='*', location='*', channel=channel, starttime=start, endtime=end, level='station', includerestricted=include_restricted)
-		number_of_stations = 0
-		for net in inv :
-			number_of_stations += len(net)
-		print(node['name'], 'node,', channel, 'channel:', len(inv), 'networks,',  number_of_stations, 'stations')
-		print('-----------------------------------------------------')
+    y2 = str(end.year)
+    m2 = str(end.month).rjust(2, '0')
+    d2 = str(end.day).rjust(2, '0')
+    for node in nodes :
+        print('-----------------------------------------------------')
+        print('Retrieving stations for node:', node['name'], '...')
+        url = node['wfcurl']
+        direct = Client(node['name'], debug=debug) #eida_token=token,
+        inv = Inventory()
+        inv += direct.get_stations(network='*', station='*', location='*', channel=channel, starttime=start, endtime=end, level='station', includerestricted=include_restricted)
+        number_of_stations = 0
+        for net in inv :
+            number_of_stations += len(net)
+        print(node['name'], 'node,', channel, 'channel:', len(inv), 'networks,',  number_of_stations, 'stations')
+        print('-----------------------------------------------------')
 
-		for network in inv :
-			for station in network :
-				try :
-					metrics = json.loads(urllib.request.urlopen(url + 'network=' + network.code + '&station=' + station.code + '&channel=' + channel + '&location=' + location + '&include=sample&start=' + y1 + '-' + m1 + '-' + d1 + 'T00:00:00.0000&end=' + y2 + '-' + m2 + '-' + d2 + 'T23:59:59.9999&longestonly=false&minimumlength=0.0').read())
-					#print 'Retrieved metrics for', network.code, station.code
-				except Exception as e :
+        for network in inv :
+            for station in network :
+                try :
+                    metrics = json.loads(urllib.request.urlopen(url + 'network=' + network.code + '&station=' + station.code + '&channel=' + channel + '&location=' + location + '&include=sample&start=' + y1 + '-' + m1 + '-' + d1 + 'T00:00:00.0000&end=' + y2 + '-' + m2 + '-' + d2 + 'T23:59:59.9999&longestonly=false&minimumlength=0.0').read())
+                    #print 'Retrieved metrics for', network.code, station.code
+                except Exception as e :
                     print('! NO ! metrics for', year, network.code, station.code)
                     resultlist.append([year, node['name'], network.code, station.code, -1])
                     nowfc_list.append([year, node['name'], network.code, station.code])
