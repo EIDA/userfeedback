@@ -19,9 +19,9 @@ def main():
                         help='Year to start the test.')
     parser.add_argument('-e', '--end', default=ey, type=int,
                         help='Year to end the test.')
-    parser.add_argument('--days', default=2, type=int,
+    parser.add_argument('--days', default=5, type=int,
                         help='How many days to randomly pick from the year.')
-    parser.add_argument('--hours', default=3, type=int,
+    parser.add_argument('--hours', default=2, type=int,
                         help='How many hours to randomly pick from each day.')
     parser.add_argument('--minutes', default=10, type=int,
                         help='Length of each individual download request in minutes.')
@@ -43,8 +43,9 @@ def main():
         t0 = UTCDateTime(y, 1, 1)
         t1 = UTCDateTime(y, 12, 31)
 
+        # Do not include restricted streams
         st = rsClient.get_stations(level='channel', channel='BHZ,HHZ', starttime=t0, endtime=t1,
-                                   timeout=args.timeout)
+                                   includerestricted=False, timeout=args.timeout)
         totchannels = len(st.get_contents()['channels'])
 
         print('# %s' % st.get_contents()['channels'])
