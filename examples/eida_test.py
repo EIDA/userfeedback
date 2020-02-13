@@ -136,8 +136,7 @@ def main():
 
                     with open('results.txt', 'a') as fout:
                         for l in downloaded:
-                            to_write = '%d %s %s %s %f %f' % (l[0], l[1], l[2].rjust(5, ' '),
-                                                              l[3].rjust(5, ' '), l[4], l[5])
+                            to_write = '%d %s %s %s %f %f' % (l[0], l[1], l[2], l[3], l[4], l[5])
                             fout.write(to_write + '\n')
 
 
