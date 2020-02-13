@@ -32,9 +32,6 @@ def main():
 
     args = parser.parse_args()
 
-    # seconds since epoch
-    jobstart = time.time()
-
     # Create a client to the EIDA Routing Service
     token = os.path.expanduser('~/.eidatoken')  # path to personal eida token here
     rsClient = RoutingClient("eida-routing", credentials={'EIDA_TOKEN': token})
@@ -58,6 +55,9 @@ def main():
             for sta in net:
                 for cha in sta:
                     downloaded = []
+
+                    # Keep track of the amount of time per request
+                    reqstart = time.time()
 
                     data = Stream()
                     days = random.sample(range(1, 366), args.days)
@@ -130,8 +130,8 @@ def main():
                         percentage_covered = 0.0
 
                     curchannel += 1
-                    minutes = (time.time()-jobstart)/60.0
-                    print('%3.2f perc; %8.2f min' % (curchannel/totchannels, minutes))
+                    minutes = (time.time()-reqstart)/60.0
+                    print('%d of %d; %8.2f min' % (curchannel, totchannels, minutes))
                     print(y, net.code, sta.code, cha.code, 'Received:', int(total_time_covered / 60.0),
                           ' - Requested:', int(full_time / 60.0), ' - % received:', str(percentage_covered * 100)[:5])
                     downloaded.append([y, net.code, sta.code, cha.code, percentage_covered * 100, minutes])
