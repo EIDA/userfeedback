@@ -8,11 +8,6 @@ from obspy import UTCDateTime
 from obspy import Stream
 
 
-days_to_sample = 2 # < 366; how many days to pick random samples from
-hours_to_sample = 5 # < 24; how many hours to randomly sample in each day
-sample_length = 10 # in minutes!; length of each individual download request in minutes
-
-
 def main():
     # Default values for start and end time (last year)
     sy = datetime.datetime.now().year - 1
@@ -24,6 +19,12 @@ def main():
                         help='Year to start the test.')
     parser.add_argument('-e', '--end', default=ey, type=int,
                         help='Year to end the test.')
+    parser.add_argument('--days', default=2, type=int,
+                        help='How many days to randomly pick from the year.')
+    parser.add_argument('--hours', default=3, type=int,
+                        help='How many hours to randomly pick from each day.')
+    parser.add_argument('--minutes', default=10, type=int,
+                        help='Length of each individual download request in minutes.')
     parser.add_argument('-t', '--timeout', default=30, type=int,
                         help='Number of seconds to be used as a timeout for the HTTP calls.')
     parser.add_argument('-a', '--authentication', default=os.path.expanduser('~/.eidatoken'),
@@ -49,25 +50,26 @@ def main():
                                    timeout=args.timeout)
         totchannels = len(st.get_contents()['channels'])
 
+        print('# %s' % st.get_contents()['channels'])
+        print('# %d channels found' % len(st.get_contents()['channels']))
+
         curchannel = 0
         for net in st:
             for sta in net:
                 for cha in sta:
                     downloaded = []
 
-                    completeness = []
-
                     data = Stream()
-                    days = random.sample(range(1, 366), days_to_sample)
+                    days = random.sample(range(1, 366), args.days)
                     hours = random.sample(range(0, 24),
-                                          hours_to_sample)  # create random set of hours and days for download test
+                                          args.hours)  # create random set of hours and days for download test
                     hours_with_data = 0
 
                     # for day in tqdm(days) : #  loop through all the random days
                     for day in days:  # loop through all the random days
                         for hour in hours:  # loop through all the random hours (same for each day)
                             start = UTCDateTime('%d-%03dT%02d:00:00' % (y, day, hour))
-                            end = start + (sample_length * 60)
+                            end = start + (args.minutes * 60)
                             # print(y, net.code, sta.code, cha.code, start, end)
 
                             try:
@@ -87,7 +89,7 @@ def main():
                                 # print('----------------------------')
                                 data_exists = 'no'
 
-                    full_time = days_to_sample * hours_to_sample * sample_length * 60
+                    full_time = args.days * args.hours * args.minutes * 60
 
                     if hours_with_data > 0:  # check how much data was downloaded
                         locs = []
@@ -102,7 +104,7 @@ def main():
                                 total_time_covered = 0
                                 for tr in data_temp:
                                     time_covered = min(tr.stats.endtime - tr.stats.starttime,
-                                                       sample_length*60.0)
+                                                       args.minutes*60.0)
                                     total_time_covered += time_covered
 
                                 percentage_covered = total_time_covered / full_time
@@ -118,7 +120,7 @@ def main():
                                 # Maximum of time is what we requested. If the DC sends
                                 # more we consider only the requested time
                                 time_covered = min(tr.stats.endtime - tr.stats.starttime,
-                                                   sample_length * 60.0)
+                                                   args.minutes * 60.0)
                                 total_time_covered += time_covered
 
                             percentage_covered = total_time_covered / full_time
