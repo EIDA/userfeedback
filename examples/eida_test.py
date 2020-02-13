@@ -131,9 +131,7 @@ def main():
 
                     curchannel += 1
                     minutes = (time.time()-reqstart)/60.0
-                    print('%d of %d; %8.2f min' % (curchannel, totchannels, minutes))
-                    print(y, net.code, sta.code, cha.code, 'Received:', int(total_time_covered / 60.0),
-                          ' - Requested:', int(full_time / 60.0), ' - % received:', str(percentage_covered * 100)[:5])
+                    print('%d/%d; %8.2f min; %d %s %s %s; perc received %3.1f' % (curchannel, totchannels, minutes, y, net.code, sta.code, cha.code, percentage_covered * 100.0))
                     downloaded.append([y, net.code, sta.code, cha.code, percentage_covered * 100, minutes])
 
                     with open('results.txt', 'a') as fout:
