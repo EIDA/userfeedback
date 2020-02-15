@@ -1,7 +1,7 @@
 import argparse
 import numpy as np
 import matplotlib.pyplot as plt
-from  matplotlib.colors import LinearSegmentedColormap
+from matplotlib.colors import LinearSegmentedColormap
 
 
 def main():
@@ -55,7 +55,10 @@ def main():
     # Split the matrix and labels in subplots
     fig, axs = plt.subplots(1, args.subplots)
 
-    fig.suptitle("Data availability test using Obspy.RoutingClient")
+    axs[0].set_ylabel('Network')
+    axs[int(args.subplots/2)].set_xlabel('Years')
+
+    # fig.suptitle("Data availability test using Obspy.RoutingClient")
 
     for i in range(args.subplots):
         step = len(labelnets)/args.subplots
@@ -82,11 +85,14 @@ def main():
                  rotation_mode="anchor")
 
         # Loop over data dimensions and create text annotations.
-        for idxn in range(idxfrom, idxto):
+        for idxn in range(idxfrom, idxto+1):
             for j in range(len(years)):
-                if np.isnan(values[idxn, j]):
-                    text = ax.text(j, idxn-idxfrom, 'NA',
-                                   ha="center", va="center", color="black")
+                try:
+                    if np.isnan(values[idxn, j]):
+                        text = ax.text(j, idxn-idxfrom, 'NA',
+                                       ha="center", va="center", color="black")
+                except Exception:
+                    pass
 
     # ax = axs[args.subplots]
     # set the limits of the plot to the limits of the data
