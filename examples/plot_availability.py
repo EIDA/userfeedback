@@ -65,12 +65,13 @@ def main():
         if i == args.subplots-1:
             idxto = len(labelnets)
 
+        # print(idxfrom, idxto)
         ax = axs[i]
-        im = ax.imshow(values[idxfrom:idxto, :], cmap=cmap)
+        im = ax.imshow(values[idxfrom:idxto+1, :], cmap=cmap)
 
         # We want to show all ticks...
         ax.set_xticks(np.arange(len(listyears)))
-        ax.set_yticks(np.arange(idxto-idxfrom))
+        ax.set_yticks(np.arange(idxto-idxfrom+1))
 
         # ... and label them with the respective list entries
         ax.set_xticklabels(listyears)
