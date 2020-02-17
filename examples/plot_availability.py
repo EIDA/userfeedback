@@ -84,15 +84,15 @@ def main():
         plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
                  rotation_mode="anchor")
 
-        # Loop over data dimensions and create text annotations.
-        for idxn in range(idxfrom, idxto+1):
-            for j in range(len(years)):
-                try:
-                    if np.isnan(values[idxn, j]):
-                        text = ax.text(j, idxn-idxfrom, 'NA',
-                                       ha="center", va="center", color="black")
-                except Exception:
-                    pass
+        # # Loop over data dimensions and create text annotations.
+        # for idxn in range(idxfrom, idxto+1):
+        #     for j in range(len(years)):
+        #         try:
+        #             if np.isnan(values[idxn, j]):
+        #                 text = ax.text(j, idxn-idxfrom, 'NA',
+        #                                ha="center", va="center", color="black")
+        #         except Exception:
+        #             pass
 
     # ax = axs[args.subplots]
     # set the limits of the plot to the limits of the data
