@@ -69,7 +69,7 @@ def main():
 
                     # We have less days in the epoch than samples to select
                     if totaldays <= args.days:
-                        print('%d/%d; Skipped because of a short epoch; %d %s %s %s; perc received %3.1f' % (curchannel, totchannels, y, net.code, sta.code, cha.code))
+                        print('%d/%d; Skipped because of a short epoch; %d %s %s %s' % (curchannel, totchannels, y, net.code, sta.code, cha.code))
                         continue
 
                     days = random.sample(range(1, totaldays+1), args.days)
