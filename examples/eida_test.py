@@ -56,6 +56,7 @@ def main():
             for sta in net:
                 for cha in sta:
                     downloaded = []
+                    curchannel += 1
 
                     # Keep track of the amount of time per request
                     reqstart = time.time()
@@ -65,6 +66,12 @@ def main():
                     realstart = max(t0, cha.start_date)
                     realend = min(t1, cha.end_date) if cha.end_date is not None else t1
                     totaldays = int((realend - realstart) / (60 * 60 * 24))
+
+                    # We have less days in the epoch than samples to select
+                    if totaldays <= args.days:
+                        print('%d/%d; Skipped because of a short epoch; %d %s %s %s; perc received %3.1f' % (curchannel, totchannels, y, net.code, sta.code, cha.code))
+                        continue
+
                     days = random.sample(range(1, totaldays+1), args.days)
 
                     hours = random.sample(range(0, 24),
@@ -74,7 +81,6 @@ def main():
                     # for day in tqdm(days) : #  loop through all the random days
                     for day in days:  # loop through all the random days
                         for hour in hours:  # loop through all the random hours (same for each day)
-                            # realstart + day
                             # start = UTCDateTime('%d-%03dT%02d:00:00' % (y, day, hour))
                             start = realstart + day * (60*60*24) + hour * (60*60)
                             end = start + (args.minutes * 60)
@@ -137,7 +143,6 @@ def main():
                         total_time_covered = 0.0
                         percentage_covered = 0.0
 
-                    curchannel += 1
                     minutes = (time.time()-reqstart)/60.0
                     print('%d/%d; %8.2f min; %d %s %s %s; perc received %3.1f' % (curchannel, totchannels, minutes, y, net.code, sta.code, cha.code, percentage_covered * 100.0))
                     downloaded.append([y, net.code, sta.code, cha.code, percentage_covered * 100, minutes])
