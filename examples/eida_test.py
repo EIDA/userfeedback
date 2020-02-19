@@ -59,9 +59,14 @@ def main():
 
                     # Keep track of the amount of time per request
                     reqstart = time.time()
-
                     data = Stream()
-                    days = random.sample(range(1, 366), args.days)
+
+                    # Days should be restricted to the days in which the stream is open
+                    realstart = max(t0, cha.start_date)
+                    realend = min(t1, cha.end_date) if cha.end_date is not None else t1
+                    totaldays = int((realend - realstart) / (60 * 60 * 24))
+                    days = random.sample(range(1, totaldays+1), args.days)
+
                     hours = random.sample(range(0, 24),
                                           args.hours)  # create random set of hours and days for download test
                     hours_with_data = 0
@@ -69,9 +74,11 @@ def main():
                     # for day in tqdm(days) : #  loop through all the random days
                     for day in days:  # loop through all the random days
                         for hour in hours:  # loop through all the random hours (same for each day)
-                            start = UTCDateTime('%d-%03dT%02d:00:00' % (y, day, hour))
+                            # realstart + day
+                            # start = UTCDateTime('%d-%03dT%02d:00:00' % (y, day, hour))
+                            start = realstart + day * (60*60*24) + hour * (60*60)
                             end = start + (args.minutes * 60)
-                            # print(y, net.code, sta.code, cha.code, start, end)
+                            print(y, net.code, sta.code, cha.code, start, end)
 
                             try:
                                 # get the data
