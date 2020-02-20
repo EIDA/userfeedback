@@ -71,7 +71,8 @@ def main():
 
                     # We have less days in the epoch than samples to select
                     if totaldays <= args.days:
-                        print('%d/%d; Skipped because of a short epoch; %d %s %s %s' % (curchannel, totchannels, y, net.code, sta.code, cha.code))
+                        print('%d/%d; Skipped because of a short epoch; %d %s %s %s'
+                              % (curchannel, totchannels, y, net.code, sta.code, cha.code))
                         continue
 
                     days = random.sample(range(1, totaldays+1), args.days)
@@ -86,12 +87,15 @@ def main():
                         # Check WFCatalog for that day
                         try:
                             auxstart = realstart + day * (60*60*24)
+                            auxend = realstart + (day+1) * (60*60*24)
                             params = dict()
                             params['network'] = net.code
                             params['station'] = sta.code
                             params['channel'] = cha.code
-                            params['start'] = '%d-%02d-%02dT00:00:00' % (auxstart.year, auxstart.month, auxstart.day)
-                            params['end'] = '%d-%02d-%02dT23:59:59' % (auxstart.year, auxstart.month, auxstart.day)
+                            # FIXME No time can be included in these parameters because the WFCatalog
+                            # at BGR seems to have problems with it
+                            params['start'] = '%d-%02d-%02d' % (auxstart.year, auxstart.month, auxstart.day)
+                            params['end'] = '%d-%02d-%02d' % (auxend.year, auxend.month, auxend.day)
                             params['format'] = 'post'
                             params['service'] = 'wfcatalog'
                             r = requests.get('http://www.orfeus-eu.org/eidaws/routing/1/query', params)
@@ -111,13 +115,16 @@ def main():
                             params['longestonly'] = 'false'
                             params['minimumlength'] = 0.0
                             r = requests.get(wfcurl, params)
+                            # print(wfcurl, params)
+                            # print(r.status_code)
+                            # print(r.content)
                             if r.status_code == 200:
-                                metrics = json.loads(r.content)
+                                metrics = json.loads(r.content.decode('utf-8'))
                                 # print(metrics)
                                 days_with_metrics += 1
                             else:
-                                raise Exception('No metrics for %s %s.%s %s' % (y, net.code, sta.code, start))
-                            # print 'Retrieved metrics for', network.code, station.code
+                                raise Exception('No metrics for %s %s.%s %s' % (y, net.code, sta.code, auxstart))
+                                # print 'Retrieved metrics for', network.code, station.code
                         except Exception as e:
                             print(e)
 
