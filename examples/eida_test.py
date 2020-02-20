@@ -1,8 +1,10 @@
 import os
+import json
 import argparse
 import datetime
 import random
 import time
+import requests
 from obspy.clients.fdsn import RoutingClient
 from obspy import UTCDateTime
 from obspy import Stream
@@ -77,14 +79,53 @@ def main():
                     hours = random.sample(range(0, 24),
                                           args.hours)  # create random set of hours and days for download test
                     hours_with_data = 0
+                    days_with_metrics = 0
 
                     # for day in tqdm(days) : #  loop through all the random days
                     for day in days:  # loop through all the random days
+                        # Check WFCatalog for that day
+                        try:
+                            auxstart = realstart + day * (60*60*24)
+                            params = dict()
+                            params['network'] = net.code
+                            params['station'] = sta.code
+                            params['channel'] = cha.code
+                            params['start'] = '%d-%02d-%02dT00:00:00' % (auxstart.year, auxstart.month, auxstart.day)
+                            params['end'] = '%d-%02d-%02dT23:59:59' % (auxstart.year, auxstart.month, auxstart.day)
+                            params['format'] = 'post'
+                            params['service'] = 'wfcatalog'
+                            r = requests.get('http://www.orfeus-eu.org/eidaws/routing/1/query', params)
+                            if r.status_code == 200:
+                                wfcurl = r.content.decode('utf-8').splitlines()[0]
+                            else:
+                                raise Exception('No routing information for WFCatalog: %s' % params)
+
+                            # print(wfcurl[0])
+                        except Exception as e:
+                            print(e)
+
+                        try:
+                            del params['format']
+                            del params['service']
+                            params['include'] = 'sample'
+                            params['longestonly'] = 'false'
+                            params['minimumlength'] = 0.0
+                            r = requests.get(wfcurl, params)
+                            if r.status_code == 200:
+                                metrics = json.loads(r.content)
+                                # print(metrics)
+                                days_with_metrics += 1
+                            else:
+                                raise Exception('No metrics for %s %s.%s %s' % (y, net.code, sta.code, start))
+                            # print 'Retrieved metrics for', network.code, station.code
+                        except Exception as e:
+                            print(e)
+
                         for hour in hours:  # loop through all the random hours (same for each day)
                             # start = UTCDateTime('%d-%03dT%02d:00:00' % (y, day, hour))
                             start = realstart + day * (60*60*24) + hour * (60*60)
                             end = start + (args.minutes * 60)
-                            print(y, net.code, sta.code, cha.code, start, end)
+                            # print(y, net.code, sta.code, cha.code, start, end)
 
                             try:
                                 # get the data
@@ -144,12 +185,15 @@ def main():
                         percentage_covered = 0.0
 
                     minutes = (time.time()-reqstart)/60.0
-                    print('%d/%d; %8.2f min; %d %s %s %s; perc received %3.1f' % (curchannel, totchannels, minutes, y, net.code, sta.code, cha.code, percentage_covered * 100.0))
-                    downloaded.append([y, net.code, sta.code, cha.code, percentage_covered * 100, minutes])
+                    print('%d/%d; %8.2f min; %d %s %s %s; perc received %3.1f; perc w/metrics %3.1f' %
+                          (curchannel, totchannels, minutes, y, net.code, sta.code, cha.code,
+                           percentage_covered * 100.0, days_with_metrics*100.0/args.days))
+                    downloaded.append([y, net.code, sta.code, cha.code, percentage_covered * 100, minutes,
+                                       days_with_metrics*100.0/args.days])
 
                     with open('results.txt', 'a') as fout:
                         for l in downloaded:
-                            to_write = '%d %s %s %s %f %f' % (l[0], l[1], l[2], l[3], l[4], l[5])
+                            to_write = '%d %s %s %s %f %f %f' % (l[0], l[1], l[2], l[3], l[4], l[5], l[6])
                             fout.write(to_write + '\n')
 
 
