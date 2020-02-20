@@ -70,7 +70,8 @@ def main():
     for net in netyearavail:
         y, n = net.split('.')
         y = int(y)
-        values[labelnets.index(n), listyears.index(y)] = netyearavail[net][0]/netyearavail[net][1]
+        values[labelnets.index(n), listyears.index(y)] = min(100.0,
+                                                             netyearavail[net][0]/netyearavail[net][1])
 
     makeavailabilityplot(labelnets, listyears, values, args.subplots)
 
