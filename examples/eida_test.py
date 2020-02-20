@@ -85,10 +85,11 @@ def main():
                     # for day in tqdm(days) : #  loop through all the random days
                     for day in days:  # loop through all the random days
                         # Check WFCatalog for that day
+                        params = dict()
+                        wfcurl = None
                         try:
                             auxstart = realstart + day * (60*60*24)
                             auxend = realstart + (day+1) * (60*60*24)
-                            params = dict()
                             params['network'] = net.code
                             params['station'] = sta.code
                             params['channel'] = cha.code
