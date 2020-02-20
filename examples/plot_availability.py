@@ -18,15 +18,35 @@ def main():
     fin = open(args.input)
     networks = set()
     netyearavail = dict()
+    netyearwfc = dict()
     years = set()
 
     for line in fin.readlines():
-        year, net, sta, cha, percavailable, minutes = line.split(' ')
+        year, net, sta, cha, percavailable, minutes, wfc = line.split(' ')
         year = int(year)
         percavailable = float(percavailable)
+        wfc = float(wfc)
         minutes = float(minutes)
 
         yn = '%s.%s' % (year, net)
+        # Check in which case of coherency are we considering WFCatalog and data
+        if yn not in netyearwfc:
+            # Default value
+            netyearwfc[yn] = 2
+
+        if percavailable == wfc:
+            # Perfect situation. We have data and WFC information
+            netyearwfc[yn] = min(netyearwfc[yn], 2)
+        if percavailable < wfc:
+            # print('1', year, net, sta, cha, percavailable, minutes, wfc)
+            # We have less data than WFC information. Potentially meaning gaps
+            netyearwfc[yn] = min(netyearwfc[yn], 1)
+        if percavailable > wfc:
+            # print('0', year, net, sta, cha, percavailable, minutes, wfc)
+            # WFCatalog information missing!
+            netyearwfc[yn] = min(netyearwfc[yn], 0)
+
+        # Calculate % data received
         try:
             netyearavail[yn] = (netyearavail[yn][0] + percavailable, netyearavail[yn][1] + 1)
         except KeyError:
@@ -35,11 +55,15 @@ def main():
         networks.add(net)
         years.add(year)
 
+    # print(netyearwfc)
+
+    # Create values for the axes
     labelnets = list(networks)
     labelnets.sort()
     listyears = list(years)
     listyears.sort()
 
+    # Create a matrix to store the values to show in the availability plot
     values = np.empty((len(labelnets), len(listyears)))
     values[:] = np.nan
 
@@ -48,29 +72,45 @@ def main():
         y = int(y)
         values[labelnets.index(n), listyears.index(y)] = netyearavail[net][0]/netyearavail[net][1]
 
-    # print(sorted(netyearavail.keys()))
+    makeavailabilityplot(labelnets, listyears, values, args.subplots)
 
-    cmap = LinearSegmentedColormap.from_list('rg', ["r", "y", "g"], N=100)
+    # Create a matrix to store the values to show in wfc plot
+    values = np.empty((len(labelnets), len(listyears)))
+    values[:] = np.nan
+
+    for net in netyearwfc:
+        y, n = net.split('.')
+        y = int(y)
+        values[labelnets.index(n), listyears.index(y)] = netyearwfc[net]
+
+    makeavailabilityplot(labelnets, listyears, values, args.subplots, ticks=[0, 1, 2])
+
+
+def makeavailabilityplot(labelnets, listyears, values, subplots, ticks=None):
+    # Generate the plot based on the axes and the values
+    if ticks is None:
+        ticks = range(0, 101, 10)
+    cmap = LinearSegmentedColormap.from_list('rg', ["r", "y", "g"], N=len(ticks))
 
     # Split the matrix and labels in subplots
-    fig, axs = plt.subplots(1, args.subplots)
+    fig, axs = plt.subplots(1, subplots)
 
     axs[0].set_ylabel('Network')
-    axs[int(args.subplots/2)].set_xlabel('Years')
+    axs[int(subplots/2)].set_xlabel('Years')
 
     # fig.suptitle("Data availability test using Obspy.RoutingClient")
 
-    for i in range(args.subplots):
-        step = len(labelnets)/args.subplots
+    for i in range(subplots):
+        step = len(labelnets)/subplots
         idxfrom = int(step * i)
         idxto = int(step * (i+1)) - 1
 
-        if i == args.subplots-1:
+        if i == subplots-1:
             idxto = len(labelnets)
 
         # print(idxfrom, idxto)
         ax = axs[i]
-        im = ax.imshow(values[idxfrom:idxto+1, :], cmap=cmap)
+        im = ax.imshow(values[idxfrom:idxto+1, :], cmap=cmap, vmin=0, vmax=max(ticks))
 
         # We want to show all ticks...
         ax.set_xticks(np.arange(len(listyears)))
@@ -96,7 +136,7 @@ def main():
 
     # ax = axs[args.subplots]
     # set the limits of the plot to the limits of the data
-    fig.colorbar(im)
+    fig.colorbar(im, ticks=ticks)
 
     fig.tight_layout()
     plt.show()
