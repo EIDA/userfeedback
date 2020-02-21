@@ -38,7 +38,7 @@ def wfcatalog(net, sta, cha, start, end):
         metrics = json.loads(r.content.decode('utf-8'))
         # print(metrics)
     else:
-        raise Exception('No metrics for %s.%s %s' % (net.code, sta.code, auxstart))
+        raise Exception('No metrics for %s.%s %s' % (net, sta, start))
         # print 'Retrieved metrics for', network.code, station.code
 
     return metrics
