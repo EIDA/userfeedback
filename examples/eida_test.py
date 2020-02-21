@@ -10,6 +10,40 @@ from obspy import UTCDateTime
 from obspy import Stream
 
 
+def wfcatalog(net, sta, cha, start, end):
+    params = dict()
+    params['network'] = net
+    params['station'] = sta
+    params['channel'] = cha
+    # No time can be included in these parameters because the WFCatalog
+    # at BGR seems to have problems with it
+    params['start'] = '%d-%02d-%02d' % (start.year, start.month, start.day)
+    params['end'] = '%d-%02d-%02d' % (end.year, end.month, end.day)
+    params['format'] = 'post'
+    params['service'] = 'wfcatalog'
+    r = requests.get('http://www.orfeus-eu.org/eidaws/routing/1/query', params)
+    if r.status_code == 200:
+        wfcurl = r.content.decode('utf-8').splitlines()[0]
+    else:
+        raise Exception('No routing information for WFCatalog: %s' % params)
+
+    del params['format']
+    del params['service']
+    params['include'] = 'sample'
+    params['longestonly'] = 'false'
+    params['minimumlength'] = 0.0
+    r = requests.get(wfcurl, params)
+
+    if r.status_code == 200:
+        metrics = json.loads(r.content.decode('utf-8'))
+        # print(metrics)
+    else:
+        raise Exception('No metrics for %s %s.%s %s' % (y, net.code, sta.code, auxstart))
+        # print 'Retrieved metrics for', network.code, station.code
+
+    return metrics
+
+
 def main():
     # Default values for start and end time (last year)
     sy = datetime.datetime.now().year - 1
@@ -85,47 +119,11 @@ def main():
                     # for day in tqdm(days) : #  loop through all the random days
                     for day in days:  # loop through all the random days
                         # Check WFCatalog for that day
-                        params = dict()
-                        wfcurl = None
                         try:
                             auxstart = realstart + day * (60*60*24)
                             auxend = realstart + (day+1) * (60*60*24)
-                            params['network'] = net.code
-                            params['station'] = sta.code
-                            params['channel'] = cha.code
-                            # FIXME No time can be included in these parameters because the WFCatalog
-                            # at BGR seems to have problems with it
-                            params['start'] = '%d-%02d-%02d' % (auxstart.year, auxstart.month, auxstart.day)
-                            params['end'] = '%d-%02d-%02d' % (auxend.year, auxend.month, auxend.day)
-                            params['format'] = 'post'
-                            params['service'] = 'wfcatalog'
-                            r = requests.get('http://www.orfeus-eu.org/eidaws/routing/1/query', params)
-                            if r.status_code == 200:
-                                wfcurl = r.content.decode('utf-8').splitlines()[0]
-                            else:
-                                raise Exception('No routing information for WFCatalog: %s' % params)
-
-                            # print(wfcurl[0])
-                        except Exception as e:
-                            print(e)
-
-                        try:
-                            del params['format']
-                            del params['service']
-                            params['include'] = 'sample'
-                            params['longestonly'] = 'false'
-                            params['minimumlength'] = 0.0
-                            r = requests.get(wfcurl, params)
-                            # print(wfcurl, params)
-                            # print(r.status_code)
-                            # print(r.content)
-                            if r.status_code == 200:
-                                metrics = json.loads(r.content.decode('utf-8'))
-                                # print(metrics)
-                                days_with_metrics += 1
-                            else:
-                                raise Exception('No metrics for %s %s.%s %s' % (y, net.code, sta.code, auxstart))
-                                # print 'Retrieved metrics for', network.code, station.code
+                            metrics = wfcatalog(net.code, sta.code, cha.code, auxstart, auxend)
+                            days_with_metrics += 1
                         except Exception as e:
                             print(e)
 
