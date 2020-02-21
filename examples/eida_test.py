@@ -63,16 +63,19 @@ def main():
                         help='Length of each individual download request in minutes.')
     parser.add_argument('-t', '--timeout', default=30, type=int,
                         help='Number of seconds to be used as a timeout for the HTTP calls.')
+    parser.add_argument('-x', '--exclude',
+                        help='List of comma-separated networks to be excluded from this test (e.g. XX,YY,ZZ).')
     parser.add_argument('-a', '--authentication', default=os.path.expanduser('~/.eidatoken'),
                         help='File containing the token to use during the authentication process')
 
     args = parser.parse_args()
 
+    # List of networks to exclude
+    nets2exclude = list(map(str.strip, args.exclude.split(',')))
+
     # Create a client to the EIDA Routing Service
     token = os.path.expanduser('~/.eidatoken')  # path to personal eida token here
     rsClient = RoutingClient("eida-routing", credentials={'EIDA_TOKEN': token})
-
-    downloaded = []
 
     for y in range(args.start, args.end+1):
         print('Processing year %d' % y)
@@ -94,6 +97,9 @@ def main():
                     downloaded = []
                     curchannel += 1
 
+                    if net.code in nets2exclude:
+                        print('%d/%d; Network %s is blacklisted'
+                              % (curchannel, totchannels, net.code))
                     # Keep track of the amount of time per request
                     reqstart = time.time()
                     data = Stream()
