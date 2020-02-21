@@ -100,6 +100,7 @@ def main():
                     if net.code in nets2exclude:
                         print('%d/%d; Network %s is blacklisted'
                               % (curchannel, totchannels, net.code))
+                        continue
                     # Keep track of the amount of time per request
                     reqstart = time.time()
                     data = Stream()
