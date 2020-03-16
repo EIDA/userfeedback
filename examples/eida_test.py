@@ -127,14 +127,17 @@ def main():
                     days_with_metrics = 0
 
                     # Get the inventory for the whole year to test
-                    inventory = rsClient.get_stations(network=net.code,
-                                                      station=sta.code,
-                                                      channel=cha.code,
-                                                      starttime=realstart,
-                                                      endtime=realend,
-                                                      level='response')
-
                     metadataProblem = False
+                    try:
+                        inventory = rsClient.get_stations(network=net.code,
+                                                          station=sta.code,
+                                                          channel=cha.code,
+                                                          starttime=realstart,
+                                                          endtime=realend,
+                                                          level='response')
+                    except Exception:
+                        # If there are problems retrieving metadata signal it in metadataProblem
+                        metadataProblem = True
 
                     # for day in tqdm(days) : #  loop through all the random days
                     for day in days:  # loop through all the random days
@@ -162,10 +165,12 @@ def main():
                                                                    endtime=end)
                                 data_temp.trim(starttime=start, endtime=end)
 
-                                data_temp.remove_response(inventory=inventory)
-                                if data_temp.data[0] != data_temp.data[0]:
-                                    metadataProblem = True
-                                    print('Error with metadata!')
+                                # Test metadata only in the case that we think it is OK
+                                if not metadataProblem:
+                                    data_temp.remove_response(inventory=inventory)
+                                    if data_temp.data[0] != data_temp.data[0]:
+                                        metadataProblem = True
+                                        print('Error with metadata!')
 
                                 data += data_temp
 
