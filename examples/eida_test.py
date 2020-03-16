@@ -52,9 +52,9 @@ def main():
     desc = 'Script to check accessibility of data through all EIDA nodes.'
     parser = argparse.ArgumentParser(description=desc)
     parser.add_argument('-s', '--start', default=sy, type=int,
-                        help='Year to start the test.')
+                        help='Year to start the test (default=last year).')
     parser.add_argument('-e', '--end', default=ey, type=int,
-                        help='Year to end the test.')
+                        help='Year to end the test (default=last year).')
     parser.add_argument('--days', default=5, type=int,
                         help='How many days to randomly pick from the year (default=5).')
     parser.add_argument('--hours', default=2, type=int,
