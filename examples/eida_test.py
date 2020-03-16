@@ -126,6 +126,16 @@ def main():
                     hours_with_data = 0
                     days_with_metrics = 0
 
+                    # Get the inventory for the whole year to test
+                    inventory = rsClient.get_stations(network=net.code,
+                                                      station=sta.code,
+                                                      channel=cha.code,
+                                                      starttime=realstart,
+                                                      endtime=realend,
+                                                      level='response')
+
+                    metadataProblem = False
+
                     # for day in tqdm(days) : #  loop through all the random days
                     for day in days:  # loop through all the random days
                         # Check WFCatalog for that day
@@ -151,6 +161,12 @@ def main():
                                                                    starttime=start,
                                                                    endtime=end)
                                 data_temp.trim(starttime=start, endtime=end)
+
+                                data_temp.remove_response(inventory=inventory)
+                                if data_temp.data[0] != data_temp.data[0]:
+                                    metadataProblem = True
+                                    print('Error with metadata!')
+
                                 data += data_temp
 
                                 data_exists = 'yes'
@@ -201,15 +217,16 @@ def main():
                         percentage_covered = 0.0
 
                     minutes = (time.time()-reqstart)/60.0
-                    print('%d/%d; %8.2f min; %d %s %s %s; perc received %3.1f; perc w/metrics %3.1f' %
+                    print('%d/%d; %8.2f min; %d %s %s %s; perc received %3.1f; perc w/metrics %3.1f; %s' %
                           (curchannel, totchannels, minutes, y, net.code, sta.code, cha.code,
-                           percentage_covered * 100.0, days_with_metrics*100.0/args.days))
+                           percentage_covered * 100.0, days_with_metrics*100.0/args.days,
+                           'ERROR' if metadataProblem else 'OK'))
                     downloaded.append([y, net.code, sta.code, cha.code, percentage_covered * 100, minutes,
-                                       days_with_metrics*100.0/args.days])
+                                       days_with_metrics*100.0/args.days, 'ERROR' if metadataProblem else 'OK'])
 
                     with open('results.txt', 'a') as fout:
                         for l in downloaded:
-                            to_write = '%d %s %s %s %f %f %f' % (l[0], l[1], l[2], l[3], l[4], l[5], l[6])
+                            to_write = '%d %s %s %s %f %f %f %s' % (l[0], l[1], l[2], l[3], l[4], l[5], l[6], l[7])
                             fout.write(to_write + '\n')
 
 
