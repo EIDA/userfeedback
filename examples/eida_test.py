@@ -56,17 +56,17 @@ def main():
     parser.add_argument('-e', '--end', default=ey, type=int,
                         help='Year to end the test.')
     parser.add_argument('--days', default=5, type=int,
-                        help='How many days to randomly pick from the year.')
+                        help='How many days to randomly pick from the year (default=5).')
     parser.add_argument('--hours', default=2, type=int,
-                        help='How many hours to randomly pick from each day.')
+                        help='How many hours to randomly pick from each day (default=2).')
     parser.add_argument('--minutes', default=10, type=int,
-                        help='Length of each individual download request in minutes.')
+                        help='Length of each individual download request in minutes (default=10).')
     parser.add_argument('-t', '--timeout', default=30, type=int,
-                        help='Number of seconds to be used as a timeout for the HTTP calls.')
+                        help='Number of seconds to be used as a timeout for the HTTP calls (default=30).')
     parser.add_argument('-x', '--exclude',
                         help='List of comma-separated networks to be excluded from this test (e.g. XX,YY,ZZ).')
     parser.add_argument('-a', '--authentication', default=os.path.expanduser('~/.eidatoken'),
-                        help='File containing the token to use during the authentication process')
+                        help='File containing the token to use during the authentication process (default=~/.eidatoken).')
 
     args = parser.parse_args()
 
