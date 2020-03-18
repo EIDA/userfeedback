@@ -154,7 +154,6 @@ def main():
                             # start = UTCDateTime('%d-%03dT%02d:00:00' % (y, day, hour))
                             start = realstart + day * (60*60*24) + hour * (60*60)
                             end = start + (args.minutes * 60)
-                            # print(y, net.code, sta.code, cha.code, start, end)
 
                             try:
                                 # get the data
@@ -167,10 +166,12 @@ def main():
 
                                 # Test metadata only in the case that we think it is OK
                                 if not metadataProblem:
-                                    data_temp.remove_response(inventory=inventory)
-                                    if data_temp.data[0] != data_temp.data[0]:
-                                        metadataProblem = True
-                                        print('Error with metadata!')
+                                    for tr in data_temp:
+                                        tr.remove_response(inventory=inventory)
+                                        if tr.data[0] != tr.data[0]:
+                                            metadataProblem = True
+                                            print('Error with metadata!')
+                                            break
 
                                 data += data_temp
 
