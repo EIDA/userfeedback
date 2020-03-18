@@ -22,7 +22,7 @@ def main():
     years = set()
 
     for line in fin.readlines():
-        year, net, sta, cha, percavailable, minutes, wfc = line.split(' ')
+        year, net, sta, cha, percavailable, minutes, wfc, inventory = line.split(' ')
         year = int(year)
         percavailable = float(percavailable)
         wfc = float(wfc)
