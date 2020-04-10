@@ -77,7 +77,8 @@ def main():
         nets2exclude = list()
 
     # Create a client to the EIDA Routing Service
-    token = os.path.expanduser('~/.eidatoken')  # path to personal eida token here
+    # path to personal eida token here
+    token = args.authentication
     rsClient = RoutingClient("eida-routing", credentials={'EIDA_TOKEN': token})
 
     for y in range(args.start, args.end+1):
