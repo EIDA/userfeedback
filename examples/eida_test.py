@@ -1,3 +1,8 @@
+"""Test from the User Advisory Group to monitor Data Availability within EIDA.
+
+.. moduleauthor:: Florian Fuchs <florian.fuchs@univie.ac.at>, Univ. Vienna, Austria
+"""
+
 import os
 import json
 import argparse

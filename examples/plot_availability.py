@@ -1,3 +1,8 @@
+"""Plot of the results of the Data Availability Test for EIDA.
+
+.. moduleauthor:: Javier Quinteros <javier@gfz-potsdam.de>, GFZ Potsdam, Germany
+"""
+
 import argparse
 import numpy as np
 import matplotlib.pyplot as plt
