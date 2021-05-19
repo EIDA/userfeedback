@@ -85,11 +85,11 @@ def main():
     # path to personal eida token here
     token = args.authentication
 
-    eida_nodes = [ "ODC", "GFZ", "RESIF", "INGV", "ETH", "BGR", "NIEP", "KOERI", "LMU", "NOA", "UIB", "ICGC" ]
+    eida_nodes = [ "ODC", "GFZ", "RESIF", "INGV", "ETH", "BGR", "NIEP", "KOERI", "LMU", "NOA", "ICGC" ]
 
     for node in eida_nodes:
 
-        rsClient = Client(base_url=node, eida_token=token)
+        rsClient = Client(base_url=node,timeout=args.timeout)
 
         for y in range(args.start, args.end+1):
             print('Processing year %d' % y)
@@ -170,6 +170,7 @@ def main():
                                     # get the data
                                     data_temp = rsClient.get_waveforms(network=net.code,
                                                                        station=sta.code,
+                                                                       location='*',
                                                                        channel=cha.code,
                                                                        starttime=start,
                                                                        endtime=end)
