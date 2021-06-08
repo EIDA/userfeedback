@@ -89,7 +89,10 @@ def main():
 
     for node in eida_nodes:
 
-        rsClient = Client(base_url=node,timeout=args.timeout)
+        try:
+          rsClient = Client(base_url=node,timeout=args.timeout,eida_token=credentials)
+        except:
+          rsClient = Client(base_url=node,timeout=args.timeout)
 
         for y in range(args.start, args.end+1):
             print('Processing year %d' % y)
