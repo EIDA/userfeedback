@@ -90,7 +90,7 @@ def main():
     for node in eida_nodes:
 
         try:
-          rsClient = Client(base_url=node,timeout=args.timeout,eida_token=credentials)
+          rsClient = Client(base_url=node,timeout=args.timeout,eida_token=token)
         except:
           rsClient = Client(base_url=node,timeout=args.timeout)
 
