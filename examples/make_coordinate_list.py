@@ -25,7 +25,7 @@ def append_dictionary(station_dictionary, inv, service):
           "elevation" : station.elevation,
         }
 
-EIDA_nodes = [ "ODC", "GFZ", "RESIF", "INGV", "ETH", "BGR", "NIEP", "KOERI", "LMU", "NOA", "ICGC" ]
+EIDA_nodes = [ "http://eida.geo.uib.no", "ODC", "GFZ", "RESIF", "INGV", "ETH", "BGR", "NIEP", "KOERI", "LMU", "NOA", "ICGC" ]
 station_dictionary = {}
 output_text = []
 start_year = UTCDateTime(2020,1,1)
