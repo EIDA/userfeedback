@@ -3,7 +3,7 @@ name: Federator
 about: Problems and issues using the Federator
 title: "[Federator] Title of your issue"
 labels: ''
-assignees: damb
+assignees: kaestli
 
 ---
 
