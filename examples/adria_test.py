@@ -92,166 +92,148 @@ def main():
     #eida_nodes = [ "NOA", "ICGC" ]
     #eida_nodes = [ "ICGC" ]
 
-    try:
-      rsClient = RoutingClient("eida-routing",timeout=args.timeout,eida_token=token)
-    except:
-      rsClient = RoutingClient("eida-routing",timeout=args.timeout)
+    for node in eida_nodes:
 
-    for y in range(args.start, args.end+1):
-        print('Processing year %d' % y)
-        t0 = UTCDateTime(y, 1, 1)
-        t1 = UTCDateTime(y, 12, 31)
+      try:
+        rsClient = Client(base_url=node,timeout=args.timeout,eida_token=token)
+      except:
+        rsClient = Client(base_url=node,timeout=args.timeout)
 
-        # Do not include restricted streams
-        st = rsClient.get_stations(level='channel', channel='BHZ,HHZ', network='_ADARRAY',starttime=t0, endtime=t1,
-                                   includerestricted=False)
-        totchannels = len(st.get_contents()['channels'])
-
-        print('# %s' % st.get_contents()['channels'])
-        print('# %d channels found' % len(st.get_contents()['channels']))
-
-        curchannel = 0
-        for net in st:
-            for sta in net:
-                for cha in sta:
-                    downloaded = []
-                    curchannel += 1
-
-                    if net.code in nets2exclude:
-                        print('%d/%d; Network %s is blacklisted'
-                              % (curchannel, totchannels, net.code))
-                        continue
-                    # Keep track of the amount of time per request
-                    reqstart = time.time()
-                    data = Stream()
-
-                    # Days should be restricted to the days in which the stream is open
-                    realstart = max(t0, cha.start_date)
-                    realend = min(t1, cha.end_date) if cha.end_date is not None else t1
-                    totaldays = int((realend - realstart) / (60 * 60 * 24))
-
-                    # We have less days in the epoch than samples to select
-                    if totaldays <= args.days:
-                        print('%d/%d; Skipped because of a short epoch; %d %s %s %s'
-                              % (curchannel, totchannels, y, net.code, sta.code, cha.code))
-                        continue
-
-                    days = random.sample(range(1, totaldays+1), args.days)
-
-                    hours = random.sample(range(0, 24),
-                                          args.hours)  # create random set of hours and days for download test
-                    hours_with_data = 0
-                    days_with_metrics = 0
-
-                    # Get the inventory for the whole year to test
-                    metadataProblem = False
-                    try:
-                        inventory = rsClient.get_stations(network=net.code,
-                                                          station=sta.code,
-                                                          channel=cha.code,
-                                                          starttime=realstart,
-                                                          endtime=realend,
-                                                          level='response')
-                    except Exception:
-                        # If there are problems retrieving metadata signal it in metadataProblem
-                        metadataProblem = True
-
-                    # for day in tqdm(days) : #  loop through all the random days
-                    for day in days:  # loop through all the random days
-                        # Check WFCatalog for that day
+      for y in range(args.start, args.end+1):
+          print('Processing year %d' % y)
+          t0 = UTCDateTime(y, 5, 19)
+          t1 = UTCDateTime(y, 6, 16)
+          # Do not include restricted streams
+          try:
+            st = rsClient.get_stations(level='channel', channel='BHZ,HHZ', network='_ADARRAY',starttime=t0, endtime=t1,
+                                       includerestricted=False)
+            totchannels = len(st.get_contents()['channels'])
+            print('# %s' % st.get_contents()['channels'])
+            print('# %d channels found' % len(st.get_contents()['channels']))
+            curchannel = k
+            for net in st:
+                for sta in net:
+                    for cha in sta:
+                        downloaded = []
+                        curchannel += 1
+                        if net.code in nets2exclude:
+                            print('%d/%d; Network %s is blacklisted'
+                                  % (curchannel, totchannels, net.code))
+                            continue
+                        # Keep track of the amount of time per request
+                        reqstart = time.time()
+                        data = Stream()
+                        # Days should be restricted to the days in which the stream is open
+                        realstart = max(t0, cha.start_date)
+                        realend = min(t1, cha.end_date) if cha.end_date is not None else t1
+                        totaldays = int((realend - realstart) / (60 * 60 * 24))
+                        # We have less days in the epoch than samples to select
+                        if totaldays <= args.days:
+                            print('%d/%d; Skipped because of a short epoch; %d %s %s %s'
+                                  % (curchannel, totchannels, y, net.code, sta.code, cha.code))
+                            continue
+                        days = random.sample(range(1, totaldays+1), args.days)
+                        hours = random.sample(range(0, 24),
+                                              args.hours)  # create random set of hours and days for download test
+                        hours_with_data = 0
+                        days_with_metrics = 0
+                        # Get the inventory for the whole year to test
+                        metadataProblem = False
                         try:
-                            auxstart = realstart + day * (60*60*24)
-                            auxend = realstart + (day+1) * (60*60*24)
-                            metrics = wfcatalog(net.code, sta.code, cha.code, auxstart, auxend)
-                            days_with_metrics += 1
-                        except Exception as e:
-                            print(e)
-
-                        for hour in hours:  # loop through all the random hours (same for each day)
-                            # start = UTCDateTime('%d-%03dT%02d:00:00' % (y, day, hour))
-                            start = realstart + day * (60*60*24) + hour * (60*60)
-                            end = start + (args.minutes * 60)
-
+                            inventory = rsClient.get_stations(network=net.code,
+                                                              station=sta.code,
+                                                              channel=cha.code,
+                                                              starttime=realstart,
+                                                              endtime=realend,
+                                                              level='response')
+                        except Exception:
+                            # If there are problems retrieving metadata signal it in metadataProblem
+                            metadataProblem = True
+                        # for day in tqdm(days) : #  loop through all the random days
+                        for day in days:  # loop through all the random days
+                            # Check WFCatalog for that day
                             try:
-                                # get the data
-                                data_temp = rsClient.get_waveforms(network=net.code,
-                                                                   station=sta.code,
-                                                                   location='*',
-                                                                   channel=cha.code,
-                                                                   starttime=start,
-                                                                   endtime=end)
-                                data_temp.trim(starttime=start, endtime=end)
-
-                                # Test metadata only in the case that we think it is OK
-                                if not metadataProblem:
-                                    for tr in data_temp:
-                                        tr.remove_response(inventory=inventory)
-                                        if tr.data[0] != tr.data[0]:
-                                            metadataProblem = True
-                                            print('Error with metadata!')
-                                            break
-
-                                data += data_temp
-
-                                data_exists = 'yes'
-                                hours_with_data += 1
+                                auxstart = realstart + day * (60*60*24)
+                                auxend = realstart + (day+1) * (60*60*24)
+                                metrics = wfcatalog(net.code, sta.code, cha.code, auxstart, auxend)
+                                days_with_metrics += 1
                             except Exception as e:
-                                # print(year, channel, nodename, network, station, day, hour, e)
-                                # print('----------------------------')
-                                data_exists = 'no'
-
-                    full_time = args.days * args.hours * args.minutes * 60
-
-                    if hours_with_data > 0:  # check how much data was downloaded
-                        locs = []
-                        for tr in data:
-                            locs.append(tr.stats.location)
-
-                        locs = list(set(locs))
-                        if len(locs) > 1:
-                            completeness_by_loc = [[], [], []]
-                            for loc in locs:
-                                data_temp = data.copy().select(location=loc)
-                                total_time_covered = 0
-                                for tr in data_temp:
-                                    time_covered = min(tr.stats.endtime - tr.stats.starttime,
-                                                       args.minutes*60.0)
-                                    total_time_covered += time_covered
-
-                                percentage_covered = total_time_covered / full_time
-                                completeness_by_loc[0].append(loc)
-                                completeness_by_loc[1].append(total_time_covered)
-                                completeness_by_loc[2].append(percentage_covered)
-                            percentage_covered = max(completeness_by_loc[2])
-                            total_time_covered = max(completeness_by_loc[1])
-
-                        else:
-                            total_time_covered = 0
+                                print(e)
+                            for hour in hours:  # loop through all the random hours (same for each day)
+                                # start = UTCDateTime('%d-%03dT%02d:00:00' % (y, day, hour))
+                                start = realstart + day * (60*60*24) + hour * (60*60)
+                                end = start + (args.minutes * 60)
+                                try:
+                                    # get the data
+                                    data_temp = rsClient.get_waveforms(network=net.code,
+                                                                       station=sta.code,
+                                                                       location='*',
+                                                                       channel=cha.code,
+                                                                       starttime=start,
+                                                                       endtime=end)
+                                    data_temp.trim(starttime=start, endtime=end)
+                                    # Test metadata only in the case that we think it is OK
+                                    if not metadataProblem:
+                                        for tr in data_temp:
+                                            tr.remove_response(inventory=inventory)
+                                            if tr.data[0] != tr.data[0]:
+                                                metadataProblem = True
+                                                print('Error with metadata!')
+                                                break
+                                    data += data_temp
+                                    data_exists = 'yes'
+                                    hours_with_data += 1
+                                except Exception as e:
+                                    # print(year, channel, nodename, network, station, day, hour, e)
+                                    # print('----------------------------')
+                                    data_exists = 'no'
+                        full_time = args.days * args.hours * args.minutes * 60
+                        if hours_with_data > 0:  # check how much data was downloaded
+                            locs = []
                             for tr in data:
-                                # Maximum of time is what we requested. If the DC sends
-                                # more we consider only the requested time
-                                time_covered = min(tr.stats.endtime - tr.stats.starttime,
-                                                   args.minutes * 60.0)
-                                total_time_covered += time_covered
-
-                            percentage_covered = total_time_covered / full_time
-
-                    else:
-                        total_time_covered = 0.0
-                        percentage_covered = 0.0
-
-                    minutes = (time.time()-reqstart)/60.0
-                    print('%d/%d; %8.2f min; %d %s %s %s; perc received %3.1f; perc w/metrics %3.1f; %s' %
-                          (curchannel, totchannels, minutes, y, net.code, sta.code, cha.code,
-                           percentage_covered * 100.0, days_with_metrics*100.0/args.days,
-                           'ERROR' if metadataProblem else 'OK'))
-                    downloaded.append([y, net.code, sta.code, cha.code, percentage_covered * 100, minutes,
-                                       days_with_metrics*100.0/args.days, 'ERROR' if metadataProblem else 'OK', 'eida-routing'])
-
-                    with open('adria_results.txt', 'a') as fout:
-                        for l in downloaded:
-                            to_write = '%d %s %s %s %f %f %f %s %s' % (l[0], l[1], l[2], l[3], l[4], l[5], l[6], l[7], l[8])
-                            fout.write(to_write + '\n')
+                                locs.append(tr.stats.location)
+                            locs = list(set(locs))
+                            if len(locs) > 1:
+                                completeness_by_loc = [[], [], []]
+                                for loc in locs:
+                                    data_temp = data.copy().select(location=loc)
+                                    total_time_covered = 0
+                                    for tr in data_temp:
+                                        time_covered = min(tr.stats.endtime - tr.stats.starttime,
+                                                           args.minutes*60.0)
+                                        total_time_covered += time_covered
+                                    percentage_covered = total_time_covered / full_time
+                                    completeness_by_loc[0].append(loc)
+                                    completeness_by_loc[1].append(total_time_covered)
+                                    completeness_by_loc[2].append(percentage_covered)
+                                percentage_covered = max(completeness_by_loc[2])
+                                total_time_covered = max(completeness_by_loc[1])
+                            else:
+                                total_time_covered = 0
+                                for tr in data:
+                                    # Maximum of time is what we requested. If the DC sends
+                                    # more we consider only the requested time
+                                    time_covered = min(tr.stats.endtime - tr.stats.starttime,
+                                                       args.minutes * 60.0)
+                                    total_time_covered += time_covered
+                                percentage_covered = total_time_covered / full_time
+                        else:
+                            total_time_covered = 0.0
+                            percentage_covered = 0.0
+                        minutes = (time.time()-reqstart)/60.0
+                        print('%d/%d; %8.2f min; %d %s %s %s; perc received %3.1f; perc w/metrics %3.1f; %s' %
+                              (curchannel, totchannels, minutes, y, net.code, sta.code, cha.code,
+                               percentage_covered * 100.0, days_with_metrics*100.0/args.days,
+                               'ERROR' if metadataProblem else 'OK'))
+                        downloaded.append([y, net.code, sta.code, cha.code, percentage_covered * 100, minutes,
+                                           days_with_metrics*100.0/args.days, 'ERROR' if metadataProblem else 'OK', 'eida-routing'])
+                        with open('adria_results_last_month_no_routing.txt', 'a') as fout:
+                            for l in downloaded:
+                                to_write = '%d %s %s %s %f %f %f %s %s' % (l[0], l[1], l[2], l[3], l[4], l[5], l[6], l[7], l[8])
+                                fout.write(to_write + '\n')
+          except Exception as e:
+            print('No Stations available at node: '+node)
+            print(e)
 
 
 if __name__ == '__main__':

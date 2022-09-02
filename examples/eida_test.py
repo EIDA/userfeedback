@@ -85,11 +85,11 @@ def main():
     # path to personal eida token here
     token = args.authentication
 
-    #eida_nodes = [ "http://eida.geo.uib.no", "ODC", "GFZ", "RESIF", "INGV", "ETH", "BGR", "NIEP", "KOERI", "LMU", "NOA", "ICGC" ]
+    eida_nodes = [ "http://eida.geo.uib.no", "ODC", "GFZ", "RESIF", "INGV", "ETH", "BGR", "NIEP", "KOERI", "LMU", "NOA", "ICGC" ]
     #eida_nodes = [ "KOERI", "LMU", "NOA", "ICGC" ]
     #eida_nodes = [ "LMU", "NOA", "ICGC" ]
     #eida_nodes = [ "NOA", "ICGC" ]
-    eida_nodes = [ "ICGC" ]
+    #eida_nodes = [ "ICGC" ]
 
     for node in eida_nodes:
 

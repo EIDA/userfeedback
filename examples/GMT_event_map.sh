@@ -1,7 +1,8 @@
 # This is a gmt script for creating global or regional maps of seismic station event data
 #
 #
-infile=$1
+infile=$1.txt
+infileoutlines=$1_helper.txt
 infile2=gmt_inventory2020_permanent.txt
 infile3=SPAIN_noANT.txt
 infile4=NORWAY.txt
@@ -27,6 +28,7 @@ gmt psxy $infile3 -R -J -O -K -St0.13 -Cwhite >> $ps
 gmt psxy $infile5 -R -J -O -K -St0.13 -Cwhite >> $ps
 gmt psxy $infile2 -R -J -O -K -St0.13 -Cwhite >> $ps
 gmt psxy $infile4 -R -J -O -K -St0.13 -Cwhite >> $ps
+gmt psxy $infileoutlines -R -J -O -K -St -Cblack -Wblack >> $ps
 gmt psxy $infile -R -J -O -K -St -C$cfile >> $ps
 #gmt psxy $event_file -R -J -O -K -Sa0.45 -W1p -Cblack >> $ps
 #gmt psxy $event_file -R -J -O -K -Sa0.3 -Wthick,yellow -Cblack >> $ps
