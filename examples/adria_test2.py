@@ -248,7 +248,7 @@ def main():
                     downloaded.append([y, net.code, sta.code, cha.code, percentage_covered * 100, minutes,
                                        days_with_metrics*100.0/args.days, 'ERROR' if metadataProblem else 'OK', 'eida-routing'])
 
-                    with open('adria_results_last_month6.txt', 'a') as fout:
+                    with open('adria_results_last_month7.txt', 'a') as fout:
                         for l in downloaded:
                             to_write = '%d %s %s %s %f %f %f %s %s' % (l[0], l[1], l[2], l[3], l[4], l[5], l[6], l[7], l[8])
                             fout.write(to_write + '\n')

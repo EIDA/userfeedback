@@ -3,6 +3,7 @@
 #
 infile=$1.txt
 infileoutlines=$1_helper.txt
+infileall=full_station_list_adarray.txt
 #infile2=gmt_inventory2020_permanent.txt
 #infile3=SPAIN_noANT.txt
 #infile4=NORWAY.txt
@@ -32,6 +33,7 @@ gmt pscoast -R$region -JR$mid/8.6i -Na/white -K -Dh -Sgrey20 -Ggrey40 -Wthinnest
 #gmt psxy $infile5 -R -J -O -K -St0.13 -Cwhite >> $ps
 #gmt psxy $infile2 -R -J -O -K -St0.13 -Cwhite >> $ps
 #gmt psxy $infile4 -R -J -O -K -St0.13 -Cwhite >> $ps
+gmt psxy $infileall -R -J -O -K -St0.16 -Cblack -Wwhite >> $ps
 gmt psxy $infileoutlines -R -J -O -K -St -Cblack -Wblack >> $ps
 gmt psxy $infile -R -J -O -K -St -C$cfile >> $ps
 #gmt psxy $event_file -R -J -O -K -Sa0.45 -W1p -Cblack >> $ps
@@ -40,15 +42,16 @@ gmt psxy $infile -R -J -O -K -St -C$cfile >> $ps
 #gmt psxy circle2.txt -R -J -O -K -Se -W1p >> $ps
 #gmt psscale -O -R -J -K -Dn0.05/-0.02+w8i/0.25i+h -C$cfile -Bx$scale+l'availability [%]' >> $ps
 #gmt psscale -O -R -J -K -Dn0.05/-0.02+w8i/0.25i+h -C$cfile -Bx$scale+l'variability [%]' >> $ps
-gmt psscale -O -R -J -K -Dn0.05/-0.02+w8i/0.25i+h -C$cfile -Bx$scale+l'wfc availability [%]' >> $ps
+gmt psscale -O -R -J -K -Dn0.05/-0.02+w8i/0.25i+h -C$cfile -Bx$scale+l'availability [%]' >> $ps
 #gmt psscale -O -R -J -K -Dn0.05/-0.1+w8i/0.25i+h+e -C$cfile -Bx$scale+l'depth [km]' >> $ps
 gmt pslegend -R -J -O -Dn-0.05/-0.25+w2.2i/1i << EOF >> $ps
 C white
 F black
-S 0.1i t 0.18 white thinnest,black 0.3i not available during test
+S 0.1i t 0.18 black white 0.3i not available during test
 EOF
 gmt psconvert -A5p -P-V -Tg $ps
 rm $ps
 #./GMT_generic_map.sh '201105051657' 'h' 'Residual_[s]' 'residual' 'global' 'S' '-20/20/0.1' '0.075' '-180/180/-90/90' '0' 'c' '45' '' '5'
 #./GMT_generic_map.sh '201105051657' 'h' 'Residual_[s]' 'residual' 'europe' 'S' '-20/20/0.1' '0.2' '-10/40/35/55' '15' 'h' '5' '' '5'
 #./GMT_generic_map.sh '201105051657' 'h' 'Residual_[s]' 'residual' 'usa' 'S' '-20/20/0.1' '0.2' '-130/-60/25/50' '-95' 'h' '5' '' '5'
+#S 0.1i t 0.18 white thinnest,black 0.3i not available during test

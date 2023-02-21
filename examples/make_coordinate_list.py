@@ -29,8 +29,8 @@ def append_dictionary(station_dictionary, inv, service):
 EIDA_nodes = [ "http://eida.geo.uib.no", "ODC", "GFZ", "RESIF", "INGV", "ETH", "BGR", "NIEP", "KOERI", "LMU", "NOA", "ICGC" ]
 station_dictionary = {}
 output_text = []
-start_year = UTCDateTime(2021,1,1)
-end_year = UTCDateTime(2021,12,31)
+start_year = UTCDateTime(2022,1,1)
+end_year = UTCDateTime(2022,12,31)
 for node in EIDA_nodes:
   print(node)
   inv = Client(node).get_stations(
