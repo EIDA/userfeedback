@@ -3,7 +3,10 @@
 #
 infile=$1.txt
 infileoutlines=$1_helper.txt
-infileall=full_station_list_adarray.txt
+infileallperm=AdAStations/perm10plus.txt
+infiletempdepl=AdAStations/yesDepl.txt
+infiletempnodepl=AdAStations/notDepl.txt
+#infileall=AdAStations/station_list
 #infile2=gmt_inventory2020_permanent.txt
 #infile3=SPAIN_noANT.txt
 #infile4=NORWAY.txt
@@ -33,7 +36,9 @@ gmt pscoast -R$region -JR$mid/8.6i -Na/white -K -Dh -Sgrey20 -Ggrey40 -Wthinnest
 #gmt psxy $infile5 -R -J -O -K -St0.13 -Cwhite >> $ps
 #gmt psxy $infile2 -R -J -O -K -St0.13 -Cwhite >> $ps
 #gmt psxy $infile4 -R -J -O -K -St0.13 -Cwhite >> $ps
-gmt psxy $infileall -R -J -O -K -St0.16 -Cblack -Wwhite >> $ps
+gmt psxy $infiletempnodepl -R -J -O -K -St0.16 -Cwhite -Wblack >> $ps
+gmt psxy $infiletempdepl -R -J -O -K -St0.16 -Cblack -Wwhite >> $ps
+gmt psxy $infileallperm -R -J -O -K -St0.16 -Cblack -Wwhite >> $ps
 gmt psxy $infileoutlines -R -J -O -K -St -Cblack -Wblack >> $ps
 gmt psxy $infile -R -J -O -K -St -C$cfile >> $ps
 #gmt psxy $event_file -R -J -O -K -Sa0.45 -W1p -Cblack >> $ps
@@ -46,8 +51,11 @@ gmt psscale -O -R -J -K -Dn0.05/-0.02+w8i/0.25i+h -C$cfile -Bx$scale+l'availabil
 #gmt psscale -O -R -J -K -Dn0.05/-0.1+w8i/0.25i+h+e -C$cfile -Bx$scale+l'depth [km]' >> $ps
 gmt pslegend -R -J -O -Dn-0.05/-0.25+w2.2i/1i << EOF >> $ps
 C white
-F black
+F grey40
 S 0.1i t 0.18 black white 0.3i not available during test
+C white
+F grey40
+S 0.1i t 0.18 white black 0.3i not deployed yet
 EOF
 gmt psconvert -A5p -P-V -Tg $ps
 rm $ps

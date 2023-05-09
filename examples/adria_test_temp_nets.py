@@ -86,11 +86,12 @@ def main():
     # path to personal eida token here
     token = args.authentication
 
-    eida_nodes = [ "http://eida.geo.uib.no", "GFZ", "RESIF", "INGV", "ETH", "BGR", "NIEP", "KOERI", "LMU", "NOA", "ICGC", "ODC" ]
+    #eida_nodes = [ "http://eida.geo.uib.no", "GFZ", "RESIF", "INGV", "ETH", "BGR", "NIEP", "KOERI", "LMU", "NOA", "ICGC", "ODC" ]
     #eida_nodes = [ "KOERI", "LMU", "NOA", "ICGC" ]
     #eida_nodes = [ "LMU", "NOA", "ICGC" ]
     #eida_nodes = [ "NOA", "ICGC" ]
     #eida_nodes = [ "ICGC" ]
+    temp_nets = ["1Y","2Y","4P","7B","9H","Y5","Y8","Z6","XP"]
 
     #for node in eida_nodes:
 
@@ -104,12 +105,13 @@ def main():
       rsClient = RoutingClient("eida-routing",timeout=args.timeout)
 
     for y in range(args.start, args.end+1):
+      for netw in temp_nets:
         print('Processing year %d' % y)
         t0 = UTCDateTime(2023, 1, 1)
         t1 = UTCDateTime(2023, 1, 31)
         # Do not include restricted streams
         try:
-          st = rsClient.get_stations(level='channel', channel='BHZ,HHZ', network='_ADARRAY',starttime=t0, endtime=t1,
+          st = rsClient.get_stations(level='channel', channel='BHZ,HHZ', network=netw,starttime=t0, endtime=t1,
                                      includerestricted=True)
           totchannels = len(st.get_contents()['channels'])
           print('# %s' % st.get_contents()['channels'])
@@ -231,13 +233,14 @@ def main():
                              'ERROR' if metadataProblem else 'OK'))
                       downloaded.append([y, net.code, sta.code, cha.code, percentage_covered * 100, minutes,
                                          days_with_metrics*100.0/args.days, 'ERROR' if metadataProblem else 'OK', 'eida-routing'])
-                      with open('adria_results_2023_last.txt', 'a') as fout:
+                      with open('adria_results_2023_temp_nets.txt', 'a') as fout:
                           for l in downloaded:
                               to_write = '%d %s %s %s %f %f %f %s %s' % (l[0], l[1], l[2], l[3], l[4], l[5], l[6], l[7], l[8])
                               fout.write(to_write + '\n')
         except Exception as e:
-          print('No Stations available at node: '+node)
+          #print('No Stations available at node: '+node)
           print(e)
+          time.sleep(1)
 
 
 if __name__ == '__main__':
