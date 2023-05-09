@@ -1,5 +1,9 @@
 # Python virtual environment
 env/
-
+errorlo*
 # eida_test.py results.txt file
 examples/results.txt
+
+*eidatoken*
+*/*.csv
+*/*.xls

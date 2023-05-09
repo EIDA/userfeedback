@@ -11,6 +11,7 @@ import random
 import time
 import requests
 from obspy.clients.fdsn import Client
+from obspy.clients.fdsn import RoutingClient
 from obspy import UTCDateTime
 from obspy import Stream
 
@@ -70,7 +71,7 @@ def main():
                         help='Number of seconds to be used as a timeout for the HTTP calls (default=30).')
     parser.add_argument('-x', '--exclude', default=None,
                         help='List of comma-separated networks to be excluded from this test (e.g. XX,YY,ZZ).')
-    parser.add_argument('-a', '--authentication', default=os.path.expanduser('~/.eidatoken'),
+    parser.add_argument('-a', '--authentication', default=os.path.expanduser('~/index.eidatoken'),
                         help='File containing the token to use during the authentication process (default=~/.eidatoken).')
 
     args = parser.parse_args()
@@ -85,7 +86,7 @@ def main():
     # path to personal eida token here
     token = args.authentication
 
-    eida_nodes = [ "http://eida.geo.uib.no", "ODC", "GFZ", "RESIF", "INGV", "ETH", "BGR", "NIEP", "KOERI", "LMU", "NOA", "ICGC" ]
+    eida_nodes = [ "http://eida.geo.uib.no", "GFZ", "RESIF", "INGV", "ETH", "BGR", "NIEP", "KOERI", "LMU", "NOA", "ICGC", "ODC" ]
     #eida_nodes = [ "KOERI", "LMU", "NOA", "ICGC" ]
     #eida_nodes = [ "LMU", "NOA", "ICGC" ]
     #eida_nodes = [ "NOA", "ICGC" ]
@@ -93,31 +94,32 @@ def main():
 
     for node in eida_nodes:
 
-        try:
-          rsClient = Client(base_url=node,timeout=args.timeout,eida_token=token)
-        except:
-          rsClient = Client(base_url=node,timeout=args.timeout)
-
-        for y in range(args.start, args.end+1):
-            print('Processing year %d' % y)
-            t0 = UTCDateTime(y, 1, 1)
-            t1 = UTCDateTime(y, 12, 31)
-
-            # Do not include restricted streams
-            st = rsClient.get_stations(level='channel', channel='BHZ,HHZ', starttime=t0, endtime=t1,
-                                       includerestricted=False)
+      try:
+        rsClient = Client(base_url=node,timeout=args.timeout,eida_token=token)
+      except:
+        rsClient = Client(base_url=node,timeout=args.timeout)
+#      try:
+#        rsClient = RoutingClient("eida-routing",timeout=args.timeout,credentials={'EIDA_TOKEN': token})
+#      except:
+#        rsClient = RoutingClient("eida-routing",timeout=args.timeout)
+#
+      for y in range(args.start, args.end+1):
+          print('Processing year %d' % y)
+          t0 = UTCDateTime(2023, 1, 1)
+          t1 = UTCDateTime(2023, 1, 31)
+          # Do not include restricted streams
+          try:
+            st = rsClient.get_stations(level='channel', channel='BHZ,HHZ', network='_ADARRAY',starttime=t0, endtime=t1,
+                                       includerestricted=True)
             totchannels = len(st.get_contents()['channels'])
-
             print('# %s' % st.get_contents()['channels'])
             print('# %d channels found' % len(st.get_contents()['channels']))
-
             curchannel = 0
             for net in st:
                 for sta in net:
                     for cha in sta:
                         downloaded = []
                         curchannel += 1
-
                         if net.code in nets2exclude:
                             print('%d/%d; Network %s is blacklisted'
                                   % (curchannel, totchannels, net.code))
@@ -125,25 +127,20 @@ def main():
                         # Keep track of the amount of time per request
                         reqstart = time.time()
                         data = Stream()
-
                         # Days should be restricted to the days in which the stream is open
                         realstart = max(t0, cha.start_date)
                         realend = min(t1, cha.end_date) if cha.end_date is not None else t1
                         totaldays = int((realend - realstart) / (60 * 60 * 24))
-
                         # We have less days in the epoch than samples to select
                         if totaldays <= args.days:
                             print('%d/%d; Skipped because of a short epoch; %d %s %s %s'
                                   % (curchannel, totchannels, y, net.code, sta.code, cha.code))
                             continue
-
                         days = random.sample(range(1, totaldays+1), args.days)
-
                         hours = random.sample(range(0, 24),
                                               args.hours)  # create random set of hours and days for download test
                         hours_with_data = 0
                         days_with_metrics = 0
-
                         # Get the inventory for the whole year to test
                         metadataProblem = False
                         try:
@@ -156,7 +153,6 @@ def main():
                         except Exception:
                             # If there are problems retrieving metadata signal it in metadataProblem
                             metadataProblem = True
-
                         # for day in tqdm(days) : #  loop through all the random days
                         for day in days:  # loop through all the random days
                             # Check WFCatalog for that day
@@ -167,12 +163,10 @@ def main():
                                 days_with_metrics += 1
                             except Exception as e:
                                 print(e)
-
                             for hour in hours:  # loop through all the random hours (same for each day)
                                 # start = UTCDateTime('%d-%03dT%02d:00:00' % (y, day, hour))
                                 start = realstart + day * (60*60*24) + hour * (60*60)
                                 end = start + (args.minutes * 60)
-
                                 try:
                                     # get the data
                                     data_temp = rsClient.get_waveforms(network=net.code,
@@ -182,7 +176,6 @@ def main():
                                                                        starttime=start,
                                                                        endtime=end)
                                     data_temp.trim(starttime=start, endtime=end)
-
                                     # Test metadata only in the case that we think it is OK
                                     if not metadataProblem:
                                         for tr in data_temp:
@@ -191,23 +184,18 @@ def main():
                                                 metadataProblem = True
                                                 print('Error with metadata!')
                                                 break
-
                                     data += data_temp
-
                                     data_exists = 'yes'
                                     hours_with_data += 1
                                 except Exception as e:
                                     # print(year, channel, nodename, network, station, day, hour, e)
                                     # print('----------------------------')
                                     data_exists = 'no'
-
                         full_time = args.days * args.hours * args.minutes * 60
-
                         if hours_with_data > 0:  # check how much data was downloaded
                             locs = []
                             for tr in data:
                                 locs.append(tr.stats.location)
-
                             locs = list(set(locs))
                             if len(locs) > 1:
                                 completeness_by_loc = [[], [], []]
@@ -218,14 +206,12 @@ def main():
                                         time_covered = min(tr.stats.endtime - tr.stats.starttime,
                                                            args.minutes*60.0)
                                         total_time_covered += time_covered
-
                                     percentage_covered = total_time_covered / full_time
                                     completeness_by_loc[0].append(loc)
                                     completeness_by_loc[1].append(total_time_covered)
                                     completeness_by_loc[2].append(percentage_covered)
                                 percentage_covered = max(completeness_by_loc[2])
                                 total_time_covered = max(completeness_by_loc[1])
-
                             else:
                                 total_time_covered = 0
                                 for tr in data:
@@ -234,25 +220,24 @@ def main():
                                     time_covered = min(tr.stats.endtime - tr.stats.starttime,
                                                        args.minutes * 60.0)
                                     total_time_covered += time_covered
-
                                 percentage_covered = total_time_covered / full_time
-
                         else:
                             total_time_covered = 0.0
                             percentage_covered = 0.0
-
                         minutes = (time.time()-reqstart)/60.0
                         print('%d/%d; %8.2f min; %d %s %s %s; perc received %3.1f; perc w/metrics %3.1f; %s' %
                               (curchannel, totchannels, minutes, y, net.code, sta.code, cha.code,
                                percentage_covered * 100.0, days_with_metrics*100.0/args.days,
                                'ERROR' if metadataProblem else 'OK'))
                         downloaded.append([y, net.code, sta.code, cha.code, percentage_covered * 100, minutes,
-                                           days_with_metrics*100.0/args.days, 'ERROR' if metadataProblem else 'OK', node])
-
-                        with open('results.txt', 'a') as fout:
+                                           days_with_metrics*100.0/args.days, 'ERROR' if metadataProblem else 'OK', 'eida-routing'])
+                        with open('adria_results_2023_3.txt', 'a') as fout:
                             for l in downloaded:
                                 to_write = '%d %s %s %s %f %f %f %s %s' % (l[0], l[1], l[2], l[3], l[4], l[5], l[6], l[7], l[8])
                                 fout.write(to_write + '\n')
+          except Exception as e:
+            print('No Stations available at node: '+node)
+            print(e)
 
 
 if __name__ == '__main__':
