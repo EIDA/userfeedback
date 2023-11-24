@@ -11,6 +11,7 @@ import random
 import time
 import requests
 from obspy.clients.fdsn import RoutingClient
+from obspy.clients.fdsn import Client
 from obspy import UTCDateTime
 from obspy import Stream
 
@@ -66,6 +67,10 @@ def main():
                         help='How many hours to randomly pick from each day (default=2).')
     parser.add_argument('--minutes', default=10, type=int,
                         help='Length of each individual download request in minutes (default=10).')
+    parser.add_argument('--node', default=None, type=str,
+                        choices=['BGR', 'ETH', 'GEOFON', 'GFZ', 'ICGC', 'INGV', 'KOERI', 'LMU', 'NIEP', 'NOA',
+                                 'ODC', 'ORFEUS', 'RESIF', 'UIB-NORSAR'],
+                        help='Node to check (default=EIDA).')
     parser.add_argument('-t', '--timeout', default=30, type=int,
                         help='Number of seconds to be used as a timeout for the HTTP calls (default=30).')
     parser.add_argument('-x', '--exclude', default=None,
@@ -84,7 +89,10 @@ def main():
     # Create a client to the EIDA Routing Service
     # path to personal eida token here
     token = args.authentication
-    rsClient = RoutingClient("eida-routing", credentials={'EIDA_TOKEN': token})
+    if not args.node:
+        client = RoutingClient("eida-routing", credentials={'EIDA_TOKEN': token}, timeout=args.timeout)
+    else:
+        client = Client(args.node, eida_token=token, timeout=args.timeout)
 
     for y in range(args.start, args.end+1):
         print('Processing year %d' % y)
@@ -92,8 +100,8 @@ def main():
         t1 = UTCDateTime(y, 12, 31)
 
         # Do not include restricted streams
-        st = rsClient.get_stations(level='channel', channel='BHZ,HHZ', starttime=t0, endtime=t1,
-                                   includerestricted=False, timeout=args.timeout)
+        st = client.get_stations(level='channel', channel='BHZ,HHZ', starttime=t0, endtime=t1,
+                                 includerestricted=False)
         totchannels = len(st.get_contents()['channels'])
 
         print('# %s' % st.get_contents()['channels'])
@@ -135,12 +143,12 @@ def main():
                     # Get the inventory for the whole year to test
                     metadataProblem = False
                     try:
-                        inventory = rsClient.get_stations(network=net.code,
-                                                          station=sta.code,
-                                                          channel=cha.code,
-                                                          starttime=realstart,
-                                                          endtime=realend,
-                                                          level='response')
+                        inventory = client.get_stations(network=net.code,
+                                                        station=sta.code,
+                                                        channel=cha.code,
+                                                        starttime=realstart,
+                                                        endtime=realend,
+                                                        level='response')
                     except Exception:
                         # If there are problems retrieving metadata signal it in metadataProblem
                         metadataProblem = True
@@ -163,11 +171,11 @@ def main():
 
                             try:
                                 # get the data
-                                data_temp = rsClient.get_waveforms(network=net.code,
-                                                                   station=sta.code,
-                                                                   channel=cha.code,
-                                                                   starttime=start,
-                                                                   endtime=end)
+                                data_temp = client.get_waveforms(network=net.code,
+                                                                 station=sta.code,
+                                                                 channel=cha.code,
+                                                                 starttime=start,
+                                                                 endtime=end)
                                 data_temp.trim(starttime=start, endtime=end)
 
                                 # Test metadata only in the case that we think it is OK
