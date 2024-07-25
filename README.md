@@ -19,12 +19,12 @@ We kindly request users to read this thoroughly and provide suggestions to impro
 
 ## Examples of code to access data
 
-### Obspy
-In the following example the RoutingClient from Obspy is used to access data from all EIDA. In addition, the parameter credentials is passed with details about the EIDA the token.
+### ObsPy
+In the following example the RoutingClient from ObsPy is used to access data from all EIDA. In addition, the parameter credentials is passed with details about the EIDA the token.
 
 It is highly recommended to use **always** the token with the client. Even if you are requesting open data. That prevents errors like not providing a token due to a misunderstanding about the data being open/restricted. And on the other hand it helps data centres to understand better user needs by means of more detailed statistics.
 
-`Warning: Some issues have been detected with Obspy version 1.1.0 and previous` 
+`Warning: Some issues have been detected with ObsPy version 1.1.0 and previous`
 
     >>> from obspy.clients.fdsn import RoutingClient
     >>> from obspy import UTCDateTime
