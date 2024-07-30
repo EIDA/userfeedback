@@ -6,11 +6,11 @@ At EIDA we are trying to improve the communication with our users by providing o
 Please keep in mind the following guidelines before reporting a problem.
 
 1. Do a search first in the Issue Tracker to see if someone else already reported the same problem.
-1. Try to use the most reasonable template from the ones we provide in order for us to properly assign a responsible person for your issue.
-1. Take a look at the examples provided here, the documentation at the Orfeus website and in the EIDA Authentication Service to understand how you are suppose to use/access different resources.
+1. Try to use the most reasonable template from the ones we provide in order for us to properly assign a person to take responsibility for your issue.
+1. Take a look at the examples provided here, the documentation at the [ORFEUS website][ORFEUS-web] and in the EIDA Authentication Service to understand how you are suppose to use/access different resources.
 
 ## EIDA Authentication System / Accessing restricted data
-Since March 2019 EIDA has setup a new service which should allow users to be authenticated within different EIDA services. To do this, the user needs to request a **token** from the following page
+In March 2019 EIDA set up a new service which should allow users to be authenticated within different EIDA services. To do this, the user needs to request a **token** from the following page
 
 https://geofon.gfz-potsdam.de/eas/
 
@@ -19,12 +19,12 @@ We kindly request users to read this thoroughly and provide suggestions to impro
 
 ## Examples of code to access data
 
-### Obspy
-In the following example the RoutingClient from Obspy is used to access data from all EIDA. In addition, the parameter credentials is passed with details about the EIDA the token.
+### ObsPy
+In the following example the RoutingClient from ObsPy is used to access data from all EIDA. In addition, the parameter credentials is passed with details about the EIDA the token.
 
 It is highly recommended to use **always** the token with the client. Even if you are requesting open data. That prevents errors like not providing a token due to a misunderstanding about the data being open/restricted. And on the other hand it helps data centres to understand better user needs by means of more detailed statistics.
 
-`Warning: Some issues have been detected with Obspy version 1.1.0 and previous` 
+`Warning: Some issues have been detected with ObsPy version 1.1.0 and previous`
 
     >>> from obspy.clients.fdsn import RoutingClient
     >>> from obspy import UTCDateTime
@@ -46,7 +46,7 @@ In the case that this does not work you can always turn on the debugging at the 
     >>> rsClient = RoutingClient("eida-routing", debug=True, credentials= ...)
 
 ### fdsnws_fetch
-The fdsnws_fetch is the main command line client provided by the fdsnwsscripts package. On one hand, this client was designed to mantaing backwards compatibility with the old arclink_fetch, so that users can seamlessly switch from Arclink requests to the new web services. But it is also important to mention that this client supports all recent developments from EIDA, including the usage of the EIDA token, and the provision of a proper citation in a paper for the requested data.
+The `fdsnws_fetch` is the main command line client provided by the fdsnwsscripts package. On one hand, this client was designed to maintain backwards compatibility with the old `arclink_fetch`, so that users can seamlessly switch from Arclink requests to the new web services. But it is also important to mention that this client supports all recent developments from EIDA, including the usage of the EIDA token, and the provision of a proper citation in a paper for the requested data.
 
     $ fdsnws_fetch -vvv -N Z3 -C "HHZ" -s "2016-03-01" -e "2016-03-01T00:02:00" -o data.mseed 
     using token in /home/javier/.eidatoken:
@@ -79,3 +79,5 @@ The fdsnws_fetch is the main command line client provided by the fdsnwsscripts p
     getting data from http://webservices.ingv.it/fdsnws/dataselect/1/queryauth
     got 105472 bytes (mseed) from http://webservices.ingv.it/fdsnws/dataselect/1/queryauth
 
+
+[ORFEUS-web]: http://www.orfeus-eu.org/
