@@ -12,9 +12,9 @@ Please keep in mind the following guidelines before reporting a problem.
 ## EIDA Authentication System / Accessing restricted data
 In March 2019 EIDA set up a new service which should allow users to be authenticated within different EIDA services. To do this, the user needs to request a **token** from the following page
 
-https://geofon.gfz-potsdam.de/eas/
+https://geofon.gfz.de/eas/
 
-Complete instructions can be downloaded from the [User documentation](https://geofon.gfz-potsdam.de/eas/EIDAAuthenticationService.pdf). This is still a first draft version, but should be clear enough to work with the system.
+Complete instructions can be downloaded from the [User documentation](https://geofon.gfz.de/eas/EIDAAuthenticationService.pdf). This is still a first draft version, but should be clear enough to work with the system.
 We kindly request users to read this thoroughly and provide suggestions to improve the documentation. You can enable the function "Track Changes" and return us all your suggestions in the Word file.
 
 ## Examples of code to access data
@@ -50,9 +50,9 @@ The `fdsnws_fetch` is the main command line client provided by the fdsnwsscripts
 
     $ fdsnws_fetch -vvv -N Z3 -C "HHZ" -s "2016-03-01" -e "2016-03-01T00:02:00" -o data.mseed 
     using token in /home/javier/.eidatoken:
-    {"valid_until": "2019-04-20T12:33:43.663076Z", "cn": "Javier Quinteros", "memberof": "/epos/alparray;/epos;/", "sn": "Quinteros", "issued": "2019-03-21T12:33:43.663083Z", "mail": "javier@gfz-potsdam.de", "givenName": "Javier", "expiration": "1m"}
+    {"valid_until": "2019-04-20T12:33:43.663076Z", "cn": "Javier Quinteros", "memberof": "/epos/alparray;/epos;/", "sn": "Quinteros", "issued": "2019-03-21T12:33:43.663083Z", "mail": "javier@gfz.de", "givenName": "Javier", "expiration": "1m"}
     
-    getting routes from http://geofon.gfz-potsdam.de/eidaws/routing/1/query?network=Z3&....
+    getting routes from http://geofon.gfz.de/eidaws/routing/1/query?network=Z3&....
     authenticating at https://erde.geophysik.uni-muenchen.de/fdsnws/dataselect/1/auth
     authenticating at https://www.orfeus-eu.org/fdsnws/dataselect/1/auth
     authenticating at https://eida.ethz.ch/fdsnws/dataselect/1/auth

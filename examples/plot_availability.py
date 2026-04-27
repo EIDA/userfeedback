@@ -1,6 +1,6 @@
 """Plot of the results of the Data Availability Test for EIDA.
 
-.. moduleauthor:: Javier Quinteros <javier@gfz-potsdam.de>, GFZ Potsdam, Germany
+.. moduleauthor:: Javier Quinteros <javier@gfz.de>, GFZ Potsdam, Germany
 """
 
 import argparse
